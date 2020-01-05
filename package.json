@@ -1,0 +1,28 @@
+{
+    "name": "object-accessor",
+    "version": "0.0.1",
+    "main": "access.js",
+    "description": "Set Manipulation for ordered sets",
+    "keywords": [
+        "object-access",
+        "object",
+        "set",
+        "get",
+        "hierarchical",
+        "null-propagation-operator"
+    ],
+    "author": "Abbey Hawk Sparrow <@khrome> (http://patternweaver.com)",
+    "contributors": [],
+    "bugs": {
+        "url": "https://github.com/khrome/object-accessor/issues"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/khrome/object-accessor.git"
+    },
+    "devDependencies": {
+        "chai": "^4.2.0",
+        "mocha": "^7.0.0"
+    }
+}
