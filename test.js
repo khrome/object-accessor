@@ -10,6 +10,24 @@ var testObject = {
         }
     }
 };
+
+var testObjectWithArray = {
+    something : 'somevalue',
+    parentlist : [
+        {
+            subthing : 'subvalue',
+            subparent : {
+                subthing : 'subsubvalue'
+            }
+        },
+        {
+            subthing : 'alternatevalue',
+            subparent : {
+                subthing : 'differentsubsubvalue'
+            }
+        }
+    ]
+};
 var createAugmentedObject = function(){
     var object = {};
     var data = copy(testObject);
@@ -116,6 +134,40 @@ describe('object-access', function(){
             var value = access.get(data, 'parentthing.subparent.subthing');
             should.exist(value);
             value.should.equal('someothervalue');
+        });
+    });
+
+    describe('uses wildcard access to pull groups', function(){
+        it('gets a set of subthings through an array', function(){
+            var data = copy(testObjectWithArray);
+            var values = access.getAll(data, 'parentlist.*.subthing');
+
+            should.exist(values.length);
+            values.length.should.equal(2);
+
+            should.exist(values[0]);
+            should.exist(values[0].value);
+            values[0].value.should.equal('subvalue');
+            should.exist(values[0].path);
+            values[0].path.should.equal('parentlist.0.subthing');
+
+            should.exist(values[1]);
+            should.exist(values[1].value);
+            values[1].value.should.equal('alternatevalue');
+            should.exist(values[1].path);
+            values[1].path.should.equal('parentlist.1.subthing');
+        });
+    });
+
+    describe('handles nonexistence', function(){
+        it('fails to set a nonexistent path', function(){
+            var data = copy(testObject);
+            access.set(data, 'parentthing.notathing.subnot', 'someothervalue');
+        });
+
+        it('sets a nonexistent path when prompted', function(){
+            var data = copy(testObject);
+            access.set(data, 'parentthing.notathing.subnot', 'someothervalue');
         });
     });
 });

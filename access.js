@@ -1,5 +1,5 @@
 function field(root, name, value){
-    if(typeof name == 'string') return field(root, name.split('.'), value);
+    if(typeof name === 'string') return field(root, name.split('.'), value);
     var current = root;
     var fieldName;
     while(name.length){
@@ -16,6 +16,42 @@ function field(root, name, value){
     return undefined;
 }
 
+function allFields(root, name, value, parents){
+    if(typeof name === 'string') return allFields(root, name.split('.'), value, []);
+    var current = root;
+    var fieldName;
+    while(name.length){
+        fieldName = name.shift();
+        if(fieldName === '*' ){
+            let results = Object.keys(current)
+                .reduce((res, k) => {
+                    let p = clone(parents);
+                    p.push(k);
+                    let items = allFields(current[k], clone(name), value, p).map((item)=>{
+                        item.path = p.join('.');
+                        return item;
+                    });
+                    return res.concat(items);
+                }, [])
+            return results;
+        }
+        parents.push(fieldName);
+        if(!current[fieldName]){
+            if(value) current[fieldName] = {};
+            else return undefined;
+        }
+        if(!name.length){
+            // console.log('!', current, fieldName)
+            if(value) current[fieldName] = value;
+            let res = current[fieldName]?[{
+                value: current[fieldName]
+            }]:current[fieldName];
+            return res;
+        }else current = current[fieldName];
+    }
+    return undefined;
+}
+
 function objectField(obj, field, value){
     Object.defineProperty(obj, field, {
         enumerable: false,
@@ -24,6 +60,8 @@ function objectField(obj, field, value){
         value: value
     });
 }
+
+var clone = function(ob){ return JSON.parse(JSON.stringify(ob))};
 
 module.exports = {
     //todo: support emitting events on a passed emitter
@@ -43,5 +81,11 @@ module.exports = {
     },
     set : function(data, fieldName, value){
         return field(data, fieldName, value);
+    },
+    getAll : function(data, fieldName){
+        return allFields(data, fieldName);
+    },
+    setAll : function(data, fieldName, value){
+        return allFields(data, fieldName, value);
     }
 }
