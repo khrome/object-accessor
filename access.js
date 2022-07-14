@@ -1,5 +1,5 @@
-function field(root, name, value){
-    if(typeof name === 'string') return field(root, name.split('.'), value);
+function field(root, name, value, force){
+    if(typeof name === 'string') return field(root, name.split('.'), value, force);
     var current = root;
     var fieldName;
     while(name.length){
@@ -9,15 +9,15 @@ function field(root, name, value){
             else return undefined;
         }
         if(!name.length){
-            if(value) current[fieldName] = value;
+            if(value || force) current[fieldName] = value;
             return current[fieldName];
         }else current = current[fieldName];
     }
     return undefined;
 }
 
-function allFields(root, name, value, parents){
-    if(typeof name === 'string') return allFields(root, name.split('.'), value, []);
+function allFields(root, name, value, force, parents){
+    if(typeof name === 'string') return allFields(root, name.split('.'), value, force, []);
     var current = root;
     var fieldName;
     while(name.length){
@@ -27,7 +27,7 @@ function allFields(root, name, value, parents){
                 .reduce((res, k) => {
                     let p = clone(parents);
                     p.push(k);
-                    let items = allFields(current[k], clone(name), value, p).map((item)=>{
+                    let items = allFields(current[k], clone(name), value, force, p).map((item)=>{
                         item.path = p.join('.');
                         return item;
                     });
@@ -79,13 +79,13 @@ module.exports = {
     get : function(data, fieldName){
         return field(data, fieldName);
     },
-    set : function(data, fieldName, value){
-        return field(data, fieldName, value);
+    set : function(data, fieldName, value, force){
+        return field(data, fieldName, value, force);
     },
     getAll : function(data, fieldName){
         return allFields(data, fieldName);
     },
-    setAll : function(data, fieldName, value){
-        return allFields(data, fieldName, value);
+    setAll : function(data, fieldName, value, force){
+        return allFields(data, fieldName, value, force);
     }
 }
