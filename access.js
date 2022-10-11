@@ -20,14 +20,15 @@ function allFields(root, name, value, force, parents){
     if(typeof name === 'string') return allFields(root, name.split('.'), value, force, []);
     var current = root;
     var fieldName;
+    if(!current) return undefined;
     while(name.length){
         fieldName = name.shift();
         if(fieldName === '*' ){
-            let results = Object.keys(current)
+            let results = (current?Object.keys(current):[])
                 .reduce((res, k) => {
                     let p = clone(parents);
                     p.push(k);
-                    let items = allFields(current[k], clone(name), value, force, p).map((item)=>{
+                    let items = (allFields(current[k], clone(name), value, force, p) || []).map((item)=>{
                         item.path = p.join('.');
                         return item;
                     });
@@ -37,8 +38,11 @@ function allFields(root, name, value, force, parents){
         }
         parents.push(fieldName);
         if(!current[fieldName]){
-            if(value) current[fieldName] = {};
-            else return undefined;
+            if(value){
+                current[fieldName] = {};
+            }else{
+                return undefined;
+            }
         }
         if(!name.length){
             // console.log('!', current, fieldName)
