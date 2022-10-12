@@ -4,6 +4,9 @@ function field(root, name, value, force){
     var fieldName;
     while(name.length){
         fieldName = name.shift();
+        if(fieldName.includes('__proto__') || fieldName.includes('constructor') || fieldName.includes('prototype')){
+        	return undefined;
+    	}
         if(!current[fieldName]){
             if(value) current[fieldName] = {};
             else return undefined;
